@@ -1,0 +1,882 @@
+{% extends 'base.html' %}
+
+        {% block title %}
+         <title>COVID-19 HOME PAGE</title>
+        {% endblock %}
+
+
+
+        {% block content %}
+<!--JUMBOTRON  1  -->
+<div class="jumbotron mycustom-jumbotron">
+    <div class="container">
+        <h1 id="jumb_big_txt" class="display-4">Realtime COVID-19 Report</h1>
+        <p class="lead" id="jumb_sub_txt">COVID-19 Data According To Current Time</p>
+    </div>
+</div>
+<br>
+<!--OVERVIEW HEADING  -->
+<div class="container-fluid">
+    <div class="row my-3">
+        <div class="col">
+            <h3>Overview of World COVID-19 Cases</h3>
+        </div>
+    </div>
+</div>
+<br>
+<!--OVERVIEW CARDS -->
+<div class="container">
+<div class="row">
+  <div class="col-sm-6">
+    <div class="card">
+      <div style=" align-self: center;" class="card-body">
+        <h4 class="card-title">{{active_cases}}</h4>
+        <p class="card-text">Total Active Cases</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6">
+    <div class="card">
+      <div style=" align-self: center;"  class="card-body">
+        <h4 class="card-title">{{confirmed_cases}}</h4>
+        <p class="card-text">Total Confirmed Cases</p>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="container">
+<div class="row">
+  <div class="col-sm-6">
+    <div class="card">
+      <div style=" align-self: center;"  class="card-body">
+        <h4 class="card-title">{{deaths_cases}}</h4>
+        <p class="card-text">Total Death Cases</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6">
+    <div class="card">
+      <div style=" align-self: center;"  class="card-body">
+        <h4 class="card-title">{{recovered_cases}}</h4>
+        <p class="card-text">Total Recovered Cases</p>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<br>
+<br>
+
+<div class="container">
+    <div class="row my-3">
+        <div class="col">
+            <h3>Highest Confirmed COVID-19 Cases</h3>
+        </div>
+    </div>
+    <div class="row my-2">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <canvas id="top25_confirmed-bar-chart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<br>
+<br>
+
+<div class="container">
+    <div class="row my-3">
+        <div class="col">
+            <h3>Highest Deaths Due To COVID-19 </h3>
+        </div>
+    </div>
+    <div class="row my-2">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <canvas id="top25_deaths-bar-chart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<br>
+<br>
+
+<div class="container">
+    <div class="row my-3">
+        <div class="col">
+            <h3>Highest Recovery From COVID-19 Cases</h3>
+        </div>
+    </div>
+    <div class="row my-2">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <canvas id="top25_recovered-bar-chart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<br>
+<br>
+
+<!--JUMBOTRON  2  -->
+<div class="jumbotron mycustom-jumbotron">
+    <div class="container">
+        <h1 class="jumb_big_txt" class="display-4">Country Wise COVID-19 Status Report </h1>
+        <p class="lead" class="jumb_sub_txt">Realtime COVID-19 Data</p>
+    </div>
+</div>
+
+<br>
+<br>
+
+<br>
+<br>
+
+<div class="container">
+    <div class="row my-3">
+        <div class="col">
+            <h2 style="font-weight: bolder;">Custom Country Selection</h2>
+        </div>
+    </div>
+</div>
+
+<br>
+<br>
+
+
+<!---DROP DOWN --->
+<div class="container">
+    <form class="form-group" method="POST" action="{{ url_for('homepage') }}">
+      <div class="form-group">
+        <div class="input-group">
+            <span style="font-size: 20px;" class="input-group-addon"><a>Please select &nbsp</a></span>
+
+            <select  name="comp_select" class="custom-select" methods="GET" action="/" onchange='this.form.submit()' style="text-align-last: center;">
+                <option value="" disabled selected>Select Countries</option>
+              <option value="{{dropdown_data_list[0]}}" >{{dropdown_data_list[0]}}</option>
+                <option value="value" selected>{{selected_value}}</option>
+
+              {% for data in dropdown_data_list[1:] %}
+                <option value="{{data}}">{{data}}</option>
+              {% endfor %}
+            </select>
+        </div>
+      </div>
+    </form>
+</div>
+
+<br>
+<br>
+
+<!--OVERVIEW HEADING 2  -->
+<div class="container">
+    <div class="row my-">
+        <div class="col">
+            <h3>Overview of COVID-19 Cases in {{select}}</h3>
+        </div>
+    </div>
+</div>
+
+<br>
+<br>
+
+  <div class="container">
+      <table class="table table-hover">
+        <thead>
+          <tr class="table-secondary">
+            <th>Confirmed</th>
+            <th>New Cases</th>
+            <th>Deaths</th>
+            <th>Recovered</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for ival in ind_table_covid_fact%}
+          <tr>
+            <td>{{ival[0]}}</td>
+            <td>{{ival[1]}}</td>
+            <td>{{ival[2]}}</td>
+            <td>{{ival[3]}}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+  </div>
+
+<br>
+<br>
+
+<div class="container">
+    <div class="row my-3">
+        <div class="col">
+            <h4>COVID-19 Bar Chart Representation of {{select}}</h4>
+        </div>
+    </div>
+    <div class="row my-2">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <canvas id="covid-19_bar_chart_1" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row my-3">
+        <div class="col">
+            <h4>COVID-19 Bar Chart Representation of {{select}}</h4>
+        </div>
+    </div>
+    <div class="row my-2">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <canvas id="covid-19_doughnut" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<br>
+<br>
+
+<!--JUMBOTRON  3  -->
+<div class="jumbotron mycustom-jumbotron">
+    <div class="container">
+        <h1 class="jumb_big_txt" class="display-4">World Data Table</h1>
+        <p class="lead" class="jumb_sub_txt">Realtime Table Reporting</p>
+    </div>
+</div>
+
+<br>
+<br>
+
+<div class="container">
+    <div class="row my-3">
+        <div class="col">
+            <h2 style="font-weight: bolder;">World Overview Table</h2>
+        </div>
+    </div>
+</div>
+
+<br>
+<br>
+
+<!--OVERVIEW HEADING 3  -->
+<div class="container-fluid">
+    <div class="row my-3">
+        <div class="col">
+            <h3>Overview of World COVID-19 Cases Data</h3>
+        </div>
+    </div>
+</div>
+
+<br>
+<br>
+
+ <div class="container">
+      <table class="table table-hover">
+        <thead>
+          <tr class="table-secondary">
+            <th >Country</th>
+            <th >Confirmed</th>
+            <th >Deaths</th>
+            <th >Recovered</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for wval in wld_table_covid_fact%}
+          <tr>
+            <td>{{wval[0]}}</td>
+            <td>{{wval[1]}}</td>
+            <td>{{wval[2]}}</td>
+            <td>{{wval[3]}}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+  </div>
+
+<br>
+
+<!--COVID-19 BAR CHART JS-->
+<script type="text/javascript">
+      // Global parameters:
+      // do not resize the chart canvas when its container does (keep at 600x400px)
+      Chart.defaults.global.responsive = true;
+      Chart.defaults.global.maintainAspectRatio = true;
+
+      // define the chart data
+      var chartData = {
+        labels : [{% for item in labels %}
+                   "{{item}}",
+                  {% endfor %}],
+        datasets : [{
+            label: '{{ legend }}',
+            fill: true,
+            lineTension: 0.1,
+            backgroundColor: "rgba(75,192,192,0.4)",
+            borderColor: "rgba(75,192,192,1)",
+            borderCapStyle: 'butt',
+            borderDash: [],
+            borderDashOffset: 0.0,
+            borderJoinStyle: 'miter',
+            pointBorderColor: "rgba(75,192,192,1)",
+            pointBackgroundColor: "#fff",
+            pointBorderWidth: 1,
+            pointHoverRadius: 5,
+            pointHoverBackgroundColor: "rgba(75,192,192,1)",
+            pointHoverBorderColor: "rgba(220,220,220,1)",
+            pointHoverBorderWidth: 2,
+            pointRadius: 1,
+            pointHitRadius: 10,
+            data : [{% for item in values %}
+                      {{item}},
+                    {% endfor %}],
+            spanGaps: false
+        }]
+      }
+
+      // get chart canvas
+      var holder = document.getElementById("covid-19_bar_chart_1");
+      var ctx = document.getElementById("covid-19_bar_chart_1").getContext("2d");
+
+      // create the chart using the chart canvas
+      var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: chartData,
+        options: {
+
+      scales: {
+
+          xAxes: [{
+            ticks: {
+                 fontSize: 12,
+                 fontColor: "black",
+                 beginAtZero: true,
+            },
+                 scaleLabel: {
+                      display: true,
+                      labelString: 'Cases'
+                 },
+
+                 gridLines: {
+                       display: false,
+                 },
+
+          }],
+
+          yAxes: [{
+            ticks: {
+              callback: function(value, index, values) {
+                return value + ' ' + 'People';},
+              fontSize: 12,
+              fontColor: "black",
+              beginAtZero: true
+            },
+
+            scaleLabel: {
+                  display: true,
+                  labelString: 'Numbers'
+            },
+
+            type: 'linear',
+          }]
+      },
+
+      title: {
+      display: true,
+      text: 'COVID-19 Report of {{select}}',
+      fontSize: 20,
+      fontStyle: 'bold',
+      fontColor: '#000',
+      lineHeight: 5.2,
+      padding: 10
+      },
+
+      legend: {
+      display: true,
+      align: top,
+          labels:{
+          fullWidth: true,
+          boxWidth: 40,
+          fontSize: 12,
+          fontStyle: 'normal',
+          fontColor: '#000',
+          padding: 10
+          }
+      },
+
+      tooltips: {
+        displayColors: true,
+        mode: 'index',
+        intersect: false,
+            callbacks:{
+                mode: 'x',
+            },
+      },
+
+      }
+
+      });
+</script>
+
+<!--Top 25 Confirmed Cases BAR CHART JS-->
+<script>
+      // Global parameters:
+      // do not resize the chart canvas when its container does (keep at 600x400px)
+      Chart.defaults.global.responsive = true;
+      Chart.defaults.global.maintainAspectRatio = true;
+
+      // define the chart data
+      var chartData = {
+        labels : [{% for item in countries_confirmed_name %}
+                   "{{item}}",
+                  {% endfor %}],
+        datasets : [{
+            label: '{{ legend }}',
+            fill: true,
+            lineTension: 0.1,
+            backgroundColor: "rgba(75,192,192,0.4)",
+            borderColor: "rgba(75,192,192,1)",
+            borderCapStyle: 'butt',
+            borderDash: [],
+            borderDashOffset: 0.0,
+            borderJoinStyle: 'miter',
+            pointBorderColor: "rgba(75,192,192,1)",
+            pointBackgroundColor: "#fff",
+            pointBorderWidth: 1,
+            pointHoverRadius: 5,
+            pointHoverBackgroundColor: "rgba(75,192,192,1)",
+            pointHoverBorderColor: "rgba(220,220,220,1)",
+            pointHoverBorderWidth: 2,
+            pointRadius: 1,
+            pointHitRadius: 10,
+            data : [{% for item in countries_confirmed_count %}
+                      {{item}},
+                    {% endfor %}],
+            spanGaps: false
+        }]
+      }
+
+      // get chart canvas
+      var holder = document.getElementById("top25_confirmed-bar-chart");
+      var ctx = document.getElementById("top25_confirmed-bar-chart").getContext("2d");
+
+      // create the chart using the chart canvas
+      var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: chartData,
+        options: {
+
+      scales: {
+
+          xAxes: [{
+            ticks: {
+                 fontSize: 10,
+                 fontColor: "black",
+                 beginAtZero: true,
+            },
+                 scaleLabel: {
+                      display: true,
+                      labelString: 'Countries'
+                 },
+
+                 gridLines: {
+                       display: false,
+                 },
+
+          }],
+
+          yAxes: [{
+            ticks: {
+              fontSize: 10,
+              callback: function(value, index, values) {
+                return value + ' ' + 'People';},
+              fontColor: "black",
+              beginAtZero: true
+            },
+
+            scaleLabel: {
+                  display: true,
+                  labelString: 'Count'
+            },
+
+            type: 'linear',
+          }]
+      },
+
+      title: {
+      display: true,
+      text: 'Top 25 Countries with Most Confirmed COVID-19 Cases',
+      fontSize: 20,
+      fontStyle: 'bold',
+      fontColor: '#000',
+      lineHeight: 5.2,
+      padding: 10
+      },
+
+      legend: {
+      display: true,
+      align: top,
+          labels:{
+          fullWidth: true,
+          boxWidth: 40,
+          fontSize: 12,
+          fontStyle: 'normal',
+          fontColor: '#000',
+          padding: 10
+          }
+      },
+
+      tooltips: {
+        displayColors: true,
+        mode: 'index',
+        intersect: false,
+            callbacks:{
+                mode: 'x',
+            },
+      },
+
+      }
+
+      });
+</script>
+
+<!--Top 25 Death Cases BAR CHART JS-->
+<script>
+      // Global parameters:
+      // do not resize the chart canvas when its container does (keep at 600x400px)
+      Chart.defaults.global.responsive = true;
+      Chart.defaults.global.maintainAspectRatio = true;
+
+      // define the chart data
+      var chartData = {
+        labels : [{% for item in countries_death_name %}
+                   "{{item}}",
+                  {% endfor %}],
+        datasets : [{
+            label: '{{ legend }}',
+            fill: true,
+            lineTension: 0.1,
+            backgroundColor: "rgba(75,192,192,0.4)",
+            borderColor: "rgba(75,192,192,1)",
+            borderCapStyle: 'butt',
+            borderDash: [],
+            borderDashOffset: 0.0,
+            borderJoinStyle: 'miter',
+            pointBorderColor: "rgba(75,192,192,1)",
+            pointBackgroundColor: "#fff",
+            pointBorderWidth: 1,
+            pointHoverRadius: 5,
+            pointHoverBackgroundColor: "rgba(75,192,192,1)",
+            pointHoverBorderColor: "rgba(220,220,220,1)",
+            pointHoverBorderWidth: 2,
+            pointRadius: 1,
+            pointHitRadius: 10,
+            data : [{% for item in countries_death_count %}
+                      {{item}},
+                    {% endfor %}],
+            spanGaps: false
+        }]
+      }
+
+      // get chart canvas
+      var holder = document.getElementById("top25_deaths-bar-chart");
+      var ctx = document.getElementById("top25_deaths-bar-chart").getContext("2d");
+
+      // create the chart using the chart canvas
+      var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: chartData,
+        options: {
+
+      scales: {
+
+          xAxes: [{
+            ticks: {
+                 fontSize: 10,
+                 fontColor: "black",
+                 beginAtZero: true,
+            },
+                 scaleLabel: {
+                      display: true,
+                      labelString: 'Countries'
+                 },
+
+                 gridLines: {
+                       display: false,
+                 },
+
+          }],
+
+          yAxes: [{
+            ticks: {
+              fontSize: 10,
+              callback: function(value, index, values) {
+                return value + ' ' + 'People';},
+              fontColor: "black",
+              beginAtZero: true
+            },
+
+            scaleLabel: {
+                  display: true,
+                  labelString: 'Count'
+            },
+
+            type: 'linear',
+          }]
+      },
+
+      title: {
+      display: true,
+      text: 'Top 25 Countries with Most Deaths Due To COVID-19',
+      fontSize: 20,
+      fontStyle: 'bold',
+      fontColor: '#000',
+      lineHeight: 5.2,
+      padding: 10
+      },
+
+      legend: {
+      display: true,
+      align: top,
+          labels:{
+          fullWidth: true,
+          boxWidth: 40,
+          fontSize: 12,
+          fontStyle: 'normal',
+          fontColor: '#000',
+          padding: 10
+          }
+      },
+
+      tooltips: {
+        displayColors: true,
+        mode: 'index',
+        intersect: false,
+            callbacks:{
+                mode: 'x',
+            },
+      },
+
+      }
+
+      });
+</script>
+
+<!--Top 25 Recovered Cases BAR CHART JS-->
+<script>
+      // Global parameters:
+      // do not resize the chart canvas when its container does (keep at 600x400px)
+      Chart.defaults.global.responsive = true;
+      Chart.defaults.global.maintainAspectRatio = true;
+
+      // define the chart data
+      var chartData = {
+        labels : [{% for item in countries_recovered_name %}
+                   "{{item}}",
+                  {% endfor %}],
+        datasets : [{
+            label: '{{ legend }}',
+            fill: true,
+            lineTension: 0.1,
+            backgroundColor: "rgba(75,192,192,0.4)",
+            borderColor: "rgba(75,192,192,1)",
+            borderCapStyle: 'butt',
+            borderDash: [],
+            borderDashOffset: 0.0,
+            borderJoinStyle: 'miter',
+            pointBorderColor: "rgba(75,192,192,1)",
+            pointBackgroundColor: "#fff",
+            pointBorderWidth: 1,
+            pointHoverRadius: 5,
+            pointHoverBackgroundColor: "rgba(75,192,192,1)",
+            pointHoverBorderColor: "rgba(220,220,220,1)",
+            pointHoverBorderWidth: 2,
+            pointRadius: 1,
+            pointHitRadius: 10,
+            data : [{% for item in countries_recovered_count %}
+                      {{item}},
+                    {% endfor %}],
+            spanGaps: false
+        }]
+      }
+
+      // get chart canvas
+      var holder = document.getElementById("top25_recovered-bar-chart");
+      var ctx = document.getElementById("top25_recovered-bar-chart").getContext("2d");
+
+      // create the chart using the chart canvas
+      var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: chartData,
+        options: {
+
+      scales: {
+
+          xAxes: [{
+            ticks: {
+                 fontSize: 10,
+                 fontColor: "black",
+                 beginAtZero: true,
+            },
+                 scaleLabel: {
+                      display: true,
+                      labelString: 'Countries'
+                 },
+
+                 gridLines: {
+                       display: false,
+                 },
+
+          }],
+
+          yAxes: [{
+            ticks: {
+              fontSize: 10,
+              callback: function(value, index, values) {
+                return value + ' ' + 'People';},
+              fontColor: "black",
+              beginAtZero: true
+            },
+
+            scaleLabel: {
+                  display: true,
+                  labelString: 'Count'
+            },
+
+            type: 'linear',
+          }]
+      },
+
+      title: {
+      display: true,
+      text: 'Top 25 Countries with Most Recovered COVID-19 Cases',
+      fontSize: 20,
+      fontStyle: 'bold',
+      fontColor: '#000',
+      lineHeight: 5.2,
+      padding: 10
+      },
+
+      legend: {
+      display: true,
+      align: top,
+          labels:{
+          fullWidth: true,
+          boxWidth: 40,
+          fontSize: 12,
+          fontStyle: 'normal',
+          fontColor: '#000',
+          padding: 10
+          }
+      },
+
+      tooltips: {
+        displayColors: true,
+        mode: 'index',
+        intersect: false,
+            callbacks:{
+                mode: 'x',
+            },
+      },
+
+      }
+
+      });
+</script>
+
+
+<!--DATATYPE PIE CHART -->
+<script>
+var pieCanvas = document.getElementById("covid-19_doughnut");
+Chart.defaults.global.defaultFontFamily = "Lato";
+Chart.defaults.global.defaultFontSize = 20;
+var pieData = {
+    labels : [{% for item in doughnut_data_names %}
+                   "{{item}}",
+                  {% endfor %}],
+    datasets: [
+        {
+            data : [{% for item in doughnut_data_value %}
+                      {{item}},
+                    {% endfor %}],
+            backgroundColor: [
+                "#DCC953",  /*Green, Red, Yellow*/
+                "#DB8556",
+                "#A9DB54"
+            ]
+        }]
+};
+
+var pieChart = new Chart(pieCanvas, {
+  type: 'doughnut',
+  data: pieData,
+
+  options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        cutoutPercentage: 50,
+    scales: {
+      Axes: [{
+        ticks: {
+          beginAtZero: false
+        }
+      }]
+    },
+
+    legend: {
+      display: true,
+      align: top,
+          labels:{
+          fullWidth: true,
+          boxWidth: 40,
+          fontSize: 12,
+          fontStyle: 'normal',
+          fontColor: '#000',
+          padding: 10
+          }
+    },
+
+    title: {
+      display: true,
+      text: 'Total Confirmed vs Death vs Recovered ({{select}}) ',
+      fontSize: 20,
+      fontStyle: 'bold',
+      fontColor: '#000',
+      lineHeight: 1.2,
+      padding: 10
+        },
+
+      tooltips: {
+          enabled: true,
+          mode: 'single',
+          callbacks: {
+                   label: function(tooltipItem, data) {
+                            return data.labels[tooltipItem.index] + ' - ' + data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index] + ' ' + 'People';
+                   }
+          }
+      },
+  }
+
+});
+</script>
+
+        {% endblock %}
